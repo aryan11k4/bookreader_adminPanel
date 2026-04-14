@@ -8,7 +8,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 // import { fetchBook, updateBook, uploadCover, toggleBookStatus } from '../api/adminApi.js';
 import ChapterEditor from '../components/ChapterEditor.jsx';
-import { fetchBook, updateBook, uploadCover, toggleBookStatus, fetchBookChapters } from '../api/adminApi.js';
+import { fetchBook, updateBook, toggleBookStatus, fetchBookChapters } from '../api/adminApi.js';
+import { uploadCoverToSupabase } from '../lib/supabase.js';
 
 const { TextArea } = Input;
 const { Title } = Typography;
@@ -60,15 +61,6 @@ export default function EditBookPage() {
     onSuccess: () => {
       message.success('Book updated');
       queryClient.invalidateQueries({ queryKey: ['books'] });
-      queryClient.invalidateQueries({ queryKey: ['book', id] });
-    },
-    onError: (err) => message.error(err.message),
-  });
-
-  const coverMutation = useMutation({
-    mutationFn: (file) => uploadCover(id, file),
-    onSuccess: () => {
-      message.success('Cover updated');
       queryClient.invalidateQueries({ queryKey: ['book', id] });
     },
     onError: (err) => message.error(err.message),
@@ -167,13 +159,20 @@ export default function EditBookPage() {
             )}
             <Upload
               accept="image/*"
-              beforeUpload={(file) => {
-                coverMutation.mutate(file);
+              beforeUpload={async (file) => {
+                try {
+                  const url = await uploadCoverToSupabase(file);
+                  await updateBook(id, { coverImageUrl: url });
+                  queryClient.invalidateQueries({ queryKey: ['book', id] });
+                  message.success('Cover updated');
+                } catch (err) {
+                  message.error(err.message);
+                }
                 return false;
               }}
               showUploadList={false}
             >
-              <Button icon={<UploadOutlined />} loading={coverMutation.isPending}>
+              <Button icon={<UploadOutlined />}>
                 Replace Cover
               </Button>
             </Upload>

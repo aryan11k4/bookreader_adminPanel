@@ -11,23 +11,7 @@ import {
 } from '@ant-design/icons';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { uploadEpub, createBook } from '../api/adminApi.js';
-import { createClient } from '@supabase/supabase-js';
-
-function getSupabase() {
-  return createClient(
-    import.meta.env.VITE_SUPABASE_URL,
-    import.meta.env.VITE_SUPABASE_ANON_KEY
-  );
-}
-
-async function uploadCoverToSupabase(file) {
-  const supabase = getSupabase();
-  const fileName = `${Date.now()}-${file.name}`;
-  const { error } = await supabase.storage.from('covers').upload(fileName, file);
-  if (error) throw error;
-  const { data: { publicUrl } } = supabase.storage.from('covers').getPublicUrl(fileName);
-  return publicUrl;
-}
+import { uploadCoverToSupabase } from '../lib/supabase.js';
 
 const { Dragger } = Upload;
 const { TextArea } = Input;
