@@ -1,9 +1,10 @@
-import { Layout, Menu, Typography } from 'antd';
+import { Layout, Menu, Typography, Button } from 'antd';
 import {
   DashboardOutlined,
   BookOutlined,
   UserOutlined,
   CommentOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 
@@ -11,39 +12,30 @@ const { Sider, Content } = Layout;
 const { Title } = Typography;
 
 const menuItems = [
-  { key: '/', icon: <DashboardOutlined />, label: 'Dashboard' },
-  { key: '/books', icon: <BookOutlined />, label: 'Books' },
-  { key: '/users', icon: <UserOutlined />, label: 'Users' },
-  { key: '/comments', icon: <CommentOutlined />, label: 'Comments' },
+  { key: '/',          icon: <DashboardOutlined />, label: 'Dashboard' },
+  { key: '/books',    icon: <BookOutlined />,      label: 'Books' },
+  { key: '/users',    icon: <UserOutlined />,      label: 'Users' },
+  { key: '/comments', icon: <CommentOutlined />,   label: 'Comments' },
 ];
 
-export default function AppLayout() {
+export default function AppLayout({ onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const selectedKey = menuItems
-    .map((i) => i.key)
-    .filter((k) => k !== '/')
-    .find((k) => location.pathname.startsWith(k)) || '/';
+  const selectedKey =
+    menuItems
+      .map(i => i.key)
+      .filter(k => k !== '/admin')
+      .find(k => location.pathname.startsWith(k)) || '/';
 
   return (
     <Layout style={{ height: '100vh', overflow: 'hidden' }}>
       <Sider
         width={220}
-        style={{
-          background: '#141414',
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          zIndex: 100,
-        }}
+        style={{ background: '#141414', position: 'fixed', left: 0, top: 0, bottom: 0, zIndex: 100 }}
       >
         <div style={{ padding: '20px 16px 8px' }}>
-          <Title
-            level={5}
-            style={{ color: '#e8d5b0', margin: 0, letterSpacing: '0.02em', fontSize: 13 }}
-          >
+          <Title level={5} style={{ color: '#e8d5b0', margin: 0, letterSpacing: '0.02em', fontSize: 13 }}>
             📖 Whisper Reads Admin
           </Title>
         </div>
@@ -55,6 +47,16 @@ export default function AppLayout() {
           onClick={({ key }) => navigate(key)}
           style={{ background: '#141414', marginTop: 8 }}
         />
+        <div style={{ position: 'absolute', bottom: 24, left: 0, right: 0, padding: '0 16px' }}>
+          <Button
+            danger
+            icon={<LogoutOutlined />}
+            onClick={onLogout}
+            style={{ width: '100%' }}
+          >
+            Logout
+          </Button>
+        </div>
       </Sider>
       <Layout style={{ marginLeft: 220 }}>
         <Content style={{ padding: 28, height: '100vh', overflowY: 'auto', background: '#f5f5f5' }}>

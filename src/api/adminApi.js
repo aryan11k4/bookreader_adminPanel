@@ -23,6 +23,10 @@ async function request(path, options = {}) {
     throw new Error(err.message || 'Request failed');
   }
 
+  if (res.status === 204 || res.headers.get('content-length') === '0') {
+    return null;
+  }
+
   return res.json();
 }
 
@@ -46,8 +50,11 @@ export const updateBook = (id, data) =>
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-export const deleteBook = (id) =>
-  request(`/api/admin/books/${id}`, { method: 'DELETE' });
+export const deleteBook = (id) =>{
+  console.log('Deleting book:', id);
+  console.log('Token:', getToken());
+  return request(`/api/admin/books/${id}`, { method: 'DELETE' });
+};
 export const uploadEpub = (file) => {
   const formData = new FormData();
   formData.append('file', file);
